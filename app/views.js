@@ -1,7 +1,14 @@
 // Page renderers: one function per route. Each returns a section element
 // that main.js puts into #page. Charts are built by charts.js from data.js.
-import { GDP_SERIES, POPULATION_SERIES, SECTORS_2024, TOPICS, INDICATORS, SOURCES } from './data.js';
-import { barChart, lineChart, shareBars } from './charts.js';
+// Every chart names its source and unit; KPI cards carry a trend and a
+// five-year sparkline so a single number never stands alone.
+import {
+  GDP_SERIES, POPULATION_SERIES, SECTORS_2024, TOPICS, INDICATORS, SOURCES,
+  TRADE_SERIES, RENEWABLE_SERIES, POP_AGE_2024, URBAN_RURAL_2024,
+  TRADE_PARTNERS_2024, TRADE_PRODUCTS_2024, ENERGY_GENERATION_2024,
+  ENERGY_CAPACITY_2024,
+} from './data.js';
+import { barChart, lineChart, shareBars, sparkline } from './charts.js';
 
 function section(title, intro) {
   const wrap = document.createElement('section');
@@ -14,6 +21,8 @@ function section(title, intro) {
   return wrap;
 }
 
+// kpis: [{label, value, note, trend?, trendDir?, spark?, sparkTip?}]
+// trend is a short string like "+5.0% on 2023"; spark is [numbers].
 function kpiCards(kpis) {
   const grid = document.createElement('div');
   grid.className = 'kpis';
@@ -30,6 +39,16 @@ function kpiCards(kpis) {
     n.className = 'kpi-note';
     n.textContent = k.note;
     card.append(v, l, n);
+    if (k.trend) {
+      const t = document.createElement('div');
+      t.className = 'kpi-trend ' + (k.trendDir || '');
+      t.textContent = (k.trendDir === 'up' ? '▲ ' : k.trendDir === 'down' ? '▼ ' : '') + k.trend;
+      card.appendChild(t);
+    }
+    if (k.spark) {
+      const s = sparkline(k.spark, { label: k.label + ', trend 2019–2024', tip: k.sparkTip || '' });
+      card.appendChild(s);
+    }
     grid.appendChild(card);
   }
   return grid;
@@ -70,7 +89,9 @@ function bulletList(items) {
   return ul;
 }
 
-function chartCard(title, hint, node) {
+// opts: {source, context} — a compact source line and a one-line
+// annotation that uses the chart's empty space to compare, not decorate.
+function chartCard(title, hint, node, opts) {
   const card = document.createElement('figure');
   card.className = 'chart-card';
   const cap = document.createElement('figcaption');
@@ -79,22 +100,40 @@ function chartCard(title, hint, node) {
   sub.className = 'chart-hint';
   sub.textContent = hint;
   card.append(cap, sub, node);
+  if (opts && opts.context) {
+    const ctx = document.createElement('p');
+    ctx.className = 'chart-context';
+    ctx.textContent = 'In context: ' + opts.context;
+    card.appendChild(ctx);
+  }
+  if (opts && opts.source) {
+    const src = document.createElement('p');
+    src.className = 'chart-source';
+    src.textContent = 'Source: ' + opts.source;
+    card.appendChild(src);
+  }
   return card;
 }
+
+const gdpTips = GDP_SERIES.map((g) => g.year + ': ¥' + g.total.toLocaleString('en-US') + 'bn, real growth +' + g.growth.toFixed(1) + '% (NBS, preliminary series)');
+const gdpGrowth = GDP_SERIES.map((g) => '+' + g.growth.toFixed(1) + '%');
 
 export function renderOverview() {
   const wrap = section('China in Numbers', 'The big figures for China in 2024, in one place — population, output, jobs, prices, trade and energy, each with its source and year.');
   wrap.appendChild(kpiCards([
-    { label: 'GDP, 2024', value: '¥134.91tn', note: '+5.0% in real terms' },
-    { label: 'Population, end-2024', value: '1,408.28m', note: '−1.39m on 2023' },
-    { label: 'Goods trade, 2024', value: '¥43.85tn', note: 'A record year' },
-    { label: 'Renewable capacity', value: '56% of total', note: '1.89bn kW installed' },
+    { label: 'GDP, 2024', value: '¥134.91tn', note: 'Nominal, current prices', trend: '+5.0% real on 2023', trendDir: 'up', spark: GDP_SERIES.map((g) => g.total), sparkTip: 'GDP 2019–2024: ¥100.59tn → ¥134.91tn' },
+    { label: 'Population, end-2024', value: '1,408.28m', note: 'Mainland, year-end', trend: '−1.39m on 2023', trendDir: 'down', spark: POPULATION_SERIES.map((p) => p.total), sparkTip: 'Population 2019–2024: 1,410.08m → 1,408.28m' },
+    { label: 'Goods trade, 2024', value: '¥43.85tn', note: 'Exports + imports, goods only', trend: '+5.0% on 2023', trendDir: 'up', spark: TRADE_SERIES.map((t) => t.total), sparkTip: 'Goods trade 2019–2024: ¥31.54tn → ¥43.85tn' },
+    { label: 'Renewable capacity', value: '56% of total', note: '1.89bn kW installed', trend: '+24.7% on 2023', trendDir: 'up', spark: RENEWABLE_SERIES.map((r) => r.total), sparkTip: 'Renewable capacity 2019–2024: 794 GW → 1,890 GW' },
   ]));
   const chart = barChart(
     GDP_SERIES.map((g) => ({ label: String(g.year), value: g.total, display: (g.total / 1000).toFixed(1) + 'tn' })),
-    { label: 'GDP by year', unit: 'GDP, trillion yuan' },
+    { label: 'GDP by year', unit: 'GDP, trillion yuan (nominal)', growth: gdpGrowth, tips: gdpTips, format: (v) => (v / 1000) + 'tn', height: 240 },
   );
-  wrap.appendChild(chartCard('GDP, 2019–2024', 'Every bar is labelled with its value. Growth in 2024 was 5.0% in real terms.', chart));
+  wrap.appendChild(chartCard('GDP, 2019–2024', 'Nominal GDP in trillion yuan; the green figures under each bar are real growth on the year before. Hover a bar for the exact value.', chart, {
+    context: 'GDP is 34% larger than in 2019 (¥100.59tn), and real growth has stayed between 2.2% and 8.6% a year — the 2020 dip and 2021 rebound are the pandemic years.',
+    source: 'NBS, preliminary series, January 2025. Nominal (current-price) values; growth is in real terms.',
+  }));
 
   const searchTitle = document.createElement('h2');
   searchTitle.textContent = 'Find an indicator';
@@ -141,33 +180,76 @@ export function renderTopic(topic) {
   const wrap = section(topic.title, topic.sub);
   wrap.appendChild(kpiCards(topic.kpis));
   if (topic.id === 'population') {
-    wrap.appendChild(chartCard('Population at year-end, 2019–2024', 'Millions of people. The line falls after the 2021 peak.', lineChart(
+    wrap.appendChild(chartCard('Population at year-end, 2019–2024', 'Millions of people. The line falls after the 2021 peak. Hover a dot for the exact figure.', lineChart(
       POPULATION_SERIES.map((p) => ({ label: String(p.year), value: p.total, display: p.total.toFixed(2) })),
-      { label: 'Population by year', unit: 'Million people' },
-    )));
+      { label: 'Population by year', unit: 'Million people', tips: POPULATION_SERIES.map((p) => p.year + ': ' + p.total.toFixed(2) + ' million people (NBS)'), height: 240 },
+    ), {
+      context: 'The fall is small but steady: −1.39 million in 2024, after −2.08 million in 2023. Births rose, but deaths still outnumbered them.',
+      source: 'NBS, Statistical Communiqué, 28 February 2025.',
+    }));
+    wrap.appendChild(chartCard('Who the population is, end-2024', 'Shares of the 1,408.28 million total. The 65+ group sits inside the 60+ group.', shareBars(
+      POP_AGE_2024.map((a) => ({ name: a.name, value: a.value, display: a.display, note: a.note, tip: a.name + ': ' + a.display + ' — ' + a.note })),
+    ), {
+      context: 'For every 100 people, about 61 are of working age (16–59) and 22 are 60 or older — the ageing trend the pension debate turns on.',
+      source: 'NBS, Statistical Communiqué, Table 1, 28 February 2025.',
+    }));
+    wrap.appendChild(chartCard('Where people live, end-2024', 'Permanent residents, by where they live — not by household registration.', shareBars(
+      URBAN_RURAL_2024.map((a) => ({ name: a.name, value: a.value, display: a.display, note: a.note, tip: a.name + ': ' + a.display + ' — ' + a.note })),
+    ), {
+      context: 'The urbanisation rate rose 0.84 points in a year, to 67.0%. Two in three people now live in towns and cities.',
+      source: 'NBS, Statistical Communiqué, 28 February 2025.',
+    }));
   }
   if (topic.id === 'economy') {
-    wrap.appendChild(chartCard('GDP by sector, 2024', 'Share of the 134,908.4 billion yuan total.', shareBars(
-      SECTORS_2024.map((s) => ({ name: s.name + ' (+' + s.growth + '%)', value: s.value, display: '¥' + s.value.toLocaleString('en-US') + 'bn' })),
-    )));
-    wrap.appendChild(chartCard('GDP, 2019–2024', 'Billion yuan, current prices. Real growth in 2024: 5.0%.', barChart(
+    wrap.appendChild(chartCard('GDP by sector, 2024', 'Share of the 134,908.4 billion yuan total. Each sector’s real growth is in brackets.', shareBars(
+      SECTORS_2024.map((s) => ({ name: s.name + ' (+' + s.growth + '%)', value: s.value, display: '¥' + s.value.toLocaleString('en-US') + 'bn', note: s.what, tip: s.name + ': ¥' + s.value.toLocaleString('en-US') + 'bn, +' + s.growth + '% real — ' + s.what })),
+    ), {
+      context: 'Services passed half of GDP years ago and now stand at 56.8%; farming is 6.8% and industry and construction 36.5%.',
+      source: 'NBS, preliminary estimates, January 2025. Nominal values; growth in real terms.',
+    }));
+    wrap.appendChild(chartCard('GDP, 2019–2024', 'Nominal GDP in trillion yuan; the green figures under each bar are real growth on the year before.', barChart(
       GDP_SERIES.map((g) => ({ label: String(g.year), value: g.total, display: (g.total / 1000).toFixed(1) + 'tn' })),
-      { label: 'GDP by year', unit: 'GDP, trillion yuan' },
-    )));
+      { label: 'GDP by year', unit: 'GDP, trillion yuan (nominal)', growth: gdpGrowth, tips: gdpTips, format: (v) => (v / 1000) + 'tn', height: 240 },
+    ), {
+      context: 'GDP is 34% larger than in 2019. The final NBS verification (December 2025) put 2024 GDP slightly lower, at 134,806.6 billion yuan, with growth unchanged at 5.0%.',
+      source: 'NBS, preliminary series, January 2025. Nominal (current-price) values.',
+    }));
   }
   if (topic.id === 'trade') {
-    wrap.appendChild(chartCard('Goods trade, 2024', 'Exports minus imports: a surplus of about ¥7.06 trillion.', shareBars([
-      { name: 'Exports (+7.1%)', value: 25.45, display: '¥25.45tn' },
-      { name: 'Imports (+2.3%)', value: 18.39, display: '¥18.39tn' },
-    ])));
+    wrap.appendChild(chartCard('Goods trade, 2019–2024', 'Exports plus imports, trillion yuan. Trade dipped in 2023, then set a record in 2024.', barChart(
+      TRADE_SERIES.map((t) => ({ label: String(t.year), value: t.total, display: t.total.toFixed(2) + 'tn' })),
+      { label: 'Goods trade by year', unit: 'Trillion yuan', tips: TRADE_SERIES.map((t) => t.year + ': ¥' + t.total.toFixed(2) + ' trillion of goods trade (GACC)'), height: 240 },
+    ), {
+      context: 'Total trade grew 39% in five years, from ¥31.54tn in 2019 to ¥43.85tn in 2024.',
+      source: 'General Administration of Customs of China (GACC), annual figures, January 2025.',
+    }));
+    wrap.appendChild(chartCard('Trade by partner, 2024', 'Two-way goods trade. Shares are of the ¥43.85 trillion total; Belt and Road partners overlap the three above.', shareBars(
+      TRADE_PARTNERS_2024.map((p) => ({ name: p.name, value: p.value, display: p.display, note: p.note, tip: p.name + ': ' + p.display + ' — ' + p.note })),
+      { total: 43.85 },
+    ), {
+      context: 'ASEAN has been the largest partner for five years running. Trade with Belt and Road partners passed half of all goods trade for the first time.',
+      source: 'GACC, briefing on imports and exports in 2024, 13 January 2025.',
+    }));
+    wrap.appendChild(chartCard('What China sold, 2024', 'Exports of ¥25.45 trillion, split by product type.', shareBars(
+      TRADE_PRODUCTS_2024.map((p) => ({ name: p.name, value: p.value, display: p.display, note: p.note, tip: p.name + ': ' + p.display + ' — ' + p.note })),
+    ), {
+      context: 'Mechanical and electrical products — machinery, electronics, vehicles — are nearly three-fifths of everything China exports.',
+      source: 'GACC, briefing on imports and exports in 2024, 13 January 2025.',
+    }));
   }
   if (topic.id === 'energy') {
-    wrap.appendChild(chartCard('Installed power capacity, end-2024', 'Total 3,349 GW. Renewables: solar 887m kW, wind 521m kW, hydro 436m kW.', shareBars([
-      { name: 'Solar', value: 887, display: '887m kW' },
-      { name: 'Wind', value: 521, display: '521m kW' },
-      { name: 'Hydro', value: 436, display: '436m kW' },
-      { name: 'Other (thermal, nuclear, biomass)', value: 1505, display: '1,505m kW' },
-    ])));
+    wrap.appendChild(chartCard('Installed power capacity, end-2024', 'Total 3,349 GW. “Capacity” is the maximum a plant can generate — not what it did generate.', shareBars(
+      ENERGY_CAPACITY_2024.map((e) => ({ name: e.name, value: e.value, display: e.display, note: e.note, tip: e.name + ': ' + e.display + ' installed — ' + e.note })),
+    ), {
+      context: 'Renewables (solar, wind, hydro) are 56% of all capacity. Solar alone added 277 GW in 2024 — 65% of everything new.',
+      source: 'National Energy Administration, January 2025.',
+    }));
+    wrap.appendChild(chartCard('Electricity actually generated, 2024', 'Total 10,087 billion kWh. Compare with capacity above: the mix is very different.', shareBars(
+      ENERGY_GENERATION_2024.map((e) => ({ name: e.name, value: e.value, display: e.display, note: e.note, tip: e.name + ': ' + e.display + ' generated — ' + e.note })),
+    ), {
+      context: 'Thermal plants are 43% of capacity but produced 63% of electricity; solar is 26% of capacity but produced 8% — panels only run in daylight.',
+      source: 'NEA, via the China Energy Data Report 2025 (June 2025).',
+    }));
   }
   const h2 = document.createElement('h2');
   h2.textContent = 'What the numbers say';
@@ -198,6 +280,8 @@ export function renderSources() {
     'The surveyed unemployment rate covers urban areas and is measured by survey, not by benefit claims. It averaged 5.1% in 2024.',
     'Trade is goods only. Services trade is reported separately by the NBS and is not mixed into the ¥43.85 trillion figure.',
     'Installed capacity is the maximum a plant can generate; it is not the same as the electricity actually generated.',
+    'Trade partner values are two-way goods trade (exports plus imports). The US yuan value is implied by the reported +4.9% growth on the 2023 value of ¥4.67 trillion; ASEAN (¥6.99tn) and EU (¥5.59tn) are as reported by GACC.',
+    'Renewable capacity covers hydro, wind, solar, biomass and pumped storage. The 2023 figure (1,516 GW) is from the China Renewable Energy Engineering Institute; the 2024 figure (1,890 GW) is from the NEA.',
   ]));
   wrap.appendChild(topicLinks(null));
   return wrap;

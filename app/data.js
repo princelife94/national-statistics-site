@@ -17,9 +17,80 @@ export const COUNTRY = {
 
 export const SOURCES = [
   { short: 'NBS', full: 'National Bureau of Statistics of China, Statistical Communiqué on the 2024 National Economic and Social Development, 28 February 2025, and “National economy witnessed steady progress… in 2024”, 17 January 2025.' },
-  { short: 'GACC', full: 'General Administration of Customs of China, briefing on imports and exports in 2024, 13 January 2025.' },
+  { short: 'GACC', full: 'General Administration of Customs of China, briefing on imports and exports in 2024, 13 January 2025; China–EU trade data via GACC as reported by Global Times, 14 January 2025.' },
   { short: 'CAAM', full: 'China Association of Automobile Manufacturers, 2024 vehicle production and sales, January 2025.' },
-  { short: 'NEA', full: 'National Energy Administration, 2024 installed capacity and power generation, reported January 2025.' },
+  { short: 'NEA', full: 'National Energy Administration, 2024 installed capacity and power generation, reported January 2025; generation mix from the China Energy Data Report 2025 (China Energy Media Research Institute, June 2025), NEA data; renewable capacity history from NEA releases.' },
+];
+
+// Total goods trade, trillion yuan, GACC. 2019 is the GACC annual figure.
+export const TRADE_SERIES = [
+  { year: 2019, total: 31.54 },
+  { year: 2020, total: 32.16 },
+  { year: 2021, total: 39.10 },
+  { year: 2022, total: 42.07 },
+  { year: 2023, total: 41.76 },
+  { year: 2024, total: 43.85 },
+];
+
+// Installed renewable capacity at year-end, GW (hydro, wind, solar,
+// biomass and pumped storage), NEA. 2023: 1,516.4 GW per the China
+// Renewable Energy Engineering Institute; 2024: 1,890 GW (NEA).
+export const RENEWABLE_SERIES = [
+  { year: 2019, total: 794 },
+  { year: 2020, total: 934 },
+  { year: 2021, total: 1063 },
+  { year: 2022, total: 1213 },
+  { year: 2023, total: 1516 },
+  { year: 2024, total: 1890 },
+];
+
+// Population by age and by urban/rural, end-2024, millions (NBS communiqué,
+// Table 1). The 65+ group is inside the 60+ group, not an extra segment.
+export const POP_AGE_2024 = [
+  { name: 'Aged 0–15 (under 16)', value: 239.99, display: '239.99m', note: '17.1% of the population' },
+  { name: 'Aged 16–59 (working age)', value: 857.98, display: '857.98m', note: '60.9% of the population' },
+  { name: 'Aged 60 and above', value: 310.31, display: '310.31m', note: '22.0% of the population, of which 220.23m are 65+' },
+];
+
+export const URBAN_RURAL_2024 = [
+  { name: 'Urban permanent residents', value: 943.50, display: '943.50m', note: 'Urbanisation rate 67.0%' },
+  { name: 'Rural permanent residents', value: 464.78, display: '464.78m', note: '33.0% of the population' },
+];
+
+// Goods trade with the largest partners, 2024, trillion yuan (GACC).
+// The US yuan value is implied by the reported +4.9% growth on the 2023
+// value of ¥4.67 trillion; ASEAN and EU values are as reported.
+export const TRADE_PARTNERS_2024 = [
+  { name: 'ASEAN', value: 6.99, display: '¥6.99tn', note: 'Largest partner, 5th year running; +9.0% on 2023' },
+  { name: 'European Union', value: 5.59, display: '¥5.59tn', note: 'Second-largest partner; +1.6% on 2023' },
+  { name: 'United States', value: 4.90, display: '≈¥4.90tn', note: 'Third-largest partner; +4.9% on 2023' },
+  { name: 'Belt and Road partners', value: 22.06, display: '¥22.06tn', note: '50.3% of all goods trade, +6.4%; overlaps the three above' },
+];
+
+// What China sold abroad in 2024, trillion yuan (GACC). Mechanical and
+// electrical products were 59.4% of exports and grew 8.7%.
+export const TRADE_PRODUCTS_2024 = [
+  { name: 'Mechanical & electrical exports', value: 15.12, display: '¥15.12tn', note: '59.4% of exports; +8.7% on 2023' },
+  { name: 'All other exports', value: 10.33, display: '¥10.33tn', note: '40.6% of exports' },
+];
+
+// Electricity actually generated in 2024, billion kWh (NEA, via the China
+// Energy Data Report 2025). Total 10,086.88 billion kWh, +6.7%.
+export const ENERGY_GENERATION_2024 = [
+  { name: 'Thermal (mostly coal)', value: 6374.26, display: '6,374bn kWh', note: '63.2% of generation; +1.7% on 2023' },
+  { name: 'Hydropower', value: 1425.68, display: '1,426bn kWh', note: '14.1% of generation; +10.9%' },
+  { name: 'Wind', value: 997.04, display: '997bn kWh', note: '9.9% of generation; +12.5%' },
+  { name: 'Solar', value: 839.04, display: '839bn kWh', note: '8.3% of generation; +43.6%' },
+  { name: 'Nuclear', value: 450.85, display: '451bn kWh', note: '4.5% of generation; +3.7%' },
+];
+
+// Installed power capacity at end-2024, million kW (NEA). Total 3,348.62.
+export const ENERGY_CAPACITY_2024 = [
+  { name: 'Thermal', value: 1444.45, display: '1,444m kW', note: '43.1% of capacity; +3.8% on 2023' },
+  { name: 'Solar', value: 886.66, display: '887m kW', note: '26.5% of capacity; +45.2%' },
+  { name: 'Wind', value: 520.68, display: '521m kW', note: '15.5% of capacity; +18.0%' },
+  { name: 'Hydropower', value: 435.95, display: '436m kW', note: '13.0% of capacity; +3.2%' },
+  { name: 'Nuclear', value: 60.83, display: '61m kW', note: '1.8% of capacity; +6.9%' },
 ];
 
 // GDP in billion yuan, current prices, NBS preliminary series.
@@ -62,6 +133,7 @@ export const TOPICS = [
     points: [
       'Births rose in 2024, to 9.54 million from 9.02 million in 2023, but deaths still outnumbered births, so the total fell by 1.39 million.',
       'The peak was 2021, at 1,412.60 million. Every year since has been lower.',
+      'Two in three people now live in towns and cities: 943.50 million urban residents, a 67.0% urbanisation rate. The working-age group (16–59) is 857.98 million, 60.9% of the total; 310.31 million people, 22.0%, are 60 or older, and 220.23 million, 15.6%, are 65 or older.',
       'A shrinking population does not mean a shrinking economy: output per person rose 5.1% in real terms in 2024, to 95,749 yuan.',
     ],
   },
@@ -126,6 +198,7 @@ export const TOPICS = [
     points: [
       'Exports grew 7.1% to 25.45 trillion yuan, passing 25 trillion for the first time. Mechanical and electrical products rose 8.7% and made up 59.4% of exports.',
       'Imports grew more slowly, 2.3% to 18.39 trillion yuan, leaving a goods surplus of about 7.06 trillion yuan.',
+      'ASEAN is the largest trading partner for the fifth year running, at 6.99 trillion yuan, followed by the EU at 5.59 trillion and the US at about 4.90 trillion. Trade with Belt and Road partners passed half of all goods trade, at 50.3%.',
       'China stayed the world’s largest goods trader: its exports were 14.5% and its imports 10.5% of the world total in the first three quarters of 2024 (WTO, via GACC).',
     ],
   },
@@ -140,7 +213,8 @@ export const TOPICS = [
       { label: 'New-energy vehicles built', value: '12.89m', note: '+34.4%; 40.9% of new car sales' },
     ],
     points: [
-      'Total installed power capacity reached 3,349 GW at the end of 2024, up 14.6%. Solar stood at 887 million kW, wind at 521 million kW, hydro at 436 million kW.',
+      'Total installed power capacity reached 3,349 GW at the end of 2024, up 14.6%. Solar stood at 887 million kW, wind at 521 million kW, hydro at 436 million kW, thermal at 1,444 million kW and nuclear at 61 million kW.',
+      'Capacity is not generation. Thermal plants produced 6,374 billion kWh in 2024 — 63.2% of all electricity — while solar, 26.5% of capacity, generated 8.3%, because the sun does not shine all day. Wind generated 9.9% and hydro 14.1%.',
       'Primary energy production was 4.98 billion tonnes of standard coal equivalent in 2024, up 4.6%. Raw coal output was 4.76 billion tonnes.',
       'New-energy vehicle output (12.89 million) and sales (12.87 million) each passed 12 million for the first time, leading the world for a tenth straight year.',
     ],

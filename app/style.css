@@ -45,6 +45,12 @@ h2 { font-size: 1.3rem; margin: 32px 0 10px; border-bottom: 2px solid var(--line
 .kpi-value { font-size: 1.45rem; font-weight: bold; }
 .kpi-label { font-family: system-ui, sans-serif; font-size: 0.85rem; color: var(--muted); margin-top: 2px; }
 .kpi-note { font-family: system-ui, sans-serif; font-size: 0.8rem; color: var(--muted); margin-top: 6px; }
+.kpi-trend { font-family: system-ui, sans-serif; font-size: 0.82rem; font-weight: bold; margin-top: 6px; }
+.kpi-trend.up { color: var(--teal); }
+.kpi-trend.down { color: var(--red); }
+.spark { width: 120px; height: 36px; margin-top: 8px; display: block; }
+.spark-line { stroke: var(--teal); stroke-width: 2; }
+.spark-dot { fill: var(--red); }
 .chart-card { background: var(--card); border: 1px solid var(--line); border-radius: 8px; padding: 16px; margin: 0 0 24px; }
 .chart-card figcaption { font-weight: bold; font-size: 1.05rem; }
 .chart-hint { font-family: system-ui, sans-serif; font-size: 0.85rem; color: var(--muted); margin: 4px 0 10px; }
@@ -55,11 +61,18 @@ h2 { font-size: 1.3rem; margin: 32px 0 10px; border-bottom: 2px solid var(--line
 .chart-label { font-family: system-ui, sans-serif; font-size: 11px; fill: var(--muted); text-anchor: middle; }
 .chart-value { font-family: system-ui, sans-serif; font-size: 11px; font-weight: bold; fill: var(--ink); text-anchor: middle; }
 .chart-unit { font-family: system-ui, sans-serif; font-size: 11px; fill: var(--muted); }
+.chart-tick { font-family: system-ui, sans-serif; font-size: 10px; fill: var(--muted); }
+.chart-growth { font-family: system-ui, sans-serif; font-size: 10px; fill: var(--teal); text-anchor: middle; }
+.chart-grid { stroke: #e7e1d2; stroke-width: 1; }
+.chart-axis { stroke: #b9b09a; stroke-width: 1.5; }
+.chart-source { font-family: system-ui, sans-serif; font-size: 0.8rem; color: var(--muted); margin: 10px 0 0; }
+.chart-context { font-family: system-ui, sans-serif; font-size: 0.88rem; color: var(--ink); background: var(--paper); border-left: 3px solid var(--teal); padding: 8px 10px; margin: 12px 0 0; }
 .share-bars { display: grid; gap: 12px; }
 .share-row { display: grid; grid-template-columns: 1fr auto; gap: 4px 10px; font-family: system-ui, sans-serif; font-size: 0.9rem; }
 .share-track { grid-column: 1 / -1; background: #ece7db; border-radius: 4px; height: 14px; overflow: hidden; }
 .share-fill { height: 100%; background: var(--teal); }
 .share-value { font-weight: bold; }
+.share-note { grid-column: 1 / -1; font-size: 0.82rem; color: var(--muted); }
 .facts { padding-left: 20px; }
 .facts li { margin-bottom: 8px; }
 .source { font-family: system-ui, sans-serif; font-size: 0.85rem; color: var(--muted); border-left: 3px solid var(--gold); padding-left: 10px; }
